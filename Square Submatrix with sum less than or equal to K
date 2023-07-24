@@ -1,0 +1,37 @@
+bool isPossible(int mid, int n, int m, int k, vector<vector<int>> &prefixSum) {
+	for(int row = 0; row < n; row += 1) {
+		for(int col = 0; col < m; col += 1) {
+			if(row - mid + 1 < 0 || col - mid + 1 < 0)    continue;
+			int sum1 = prefixSum[row + 1][col + 1];
+			int sum2 = prefixSum[row - mid + 1][col - mid + 1];
+			int sum3 = prefixSum[row + 1][col - mid + 1];
+			int sum4 = prefixSum[row - mid + 1][col + 1];
+			if(sum1 + sum2 - (sum3 + sum4) <= k)    return true;
+		}
+	}
+	return false;
+}
+
+int largestSquareSubmatrix(vector<vector<int>> &mat, int n, int m, int k) {
+	vector<vector<int>> prefixSum(n + 1, vector<int>(m + 1, 0));
+	for(int row = 0; row < n; row += 1) {
+		for(int col = 0; col < m; col += 1) {
+			prefixSum[row + 1][col + 1] = prefixSum[row + 1][col] + mat[row][col];
+		}
+		for(int col = 0; col < m; col += 1) {
+			prefixSum[row + 1][col + 1] += prefixSum[row][col + 1];
+		}
+	}
+	int ans = 0, low = 0, high = min(n, m);
+	while(low <= high) {
+		int mid = low + ((high - low) >> 1);
+		if(isPossible(mid, n, m, k, prefixSum)) {
+			ans = mid;
+			low = mid + 1;
+		}
+		else {
+			high = mid - 1;
+		}
+	}
+	return ans * ans;
+}
